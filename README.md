@@ -94,7 +94,9 @@ Map driver information for recovery:
 
 #### driver_map.json
 - Find driver registry paths using:
-  `reg query HKLM\SYSTEM\CurrentControlSet\Services /s | findstr "ImagePath"`
+  ```bash
+  reg query HKLM\SYSTEM\CurrentControlSet\Services /s | findstr "ImagePath"
+  ```
 - Set criticality (1-10) based on driver importance
 
 #### Security Considerations:
@@ -127,10 +129,14 @@ python SystemGuardian.py start
 Get-Service SystemGuardian | Format-List *
 
 #### View recent logs
+```bash
 Get-Content C:\ProgramData\ComponentMonitor\logs\guardian.log -Tail 100
+```
 
 #### Verify driver blacklisting
+```bash
 Get-ChildItem C:\Windows\System32\drivers | Where-Object {$_.Name -in (Get-Content C:\ProgramData\ComponentMonitor\config\driver_map.json | ConvertFrom-Json).drivers.blacklist}
+```
 
 ### Logging
 - Logs are stored in `C:/ProgramData/ComponentMonitor/logs/guardian.log`
