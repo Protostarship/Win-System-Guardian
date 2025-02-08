@@ -4,19 +4,17 @@
             "Service Control Manager",
             "Disk",
             "Netwtw14",
-            "Application Popup",
-            "Windows Error Reporting",
-            "DHCP-Client",
-            "DNS Client"
+            "TCPIP",
+            "volmgr",
+            "BugCheck"
         ],
         "event_ids": [
-            1001,  
-            6062,  
-            219,   
-            1014,  
-            1015,  
-            4000,  
-            1012
+            1001,    
+            219,     
+            6062,    
+            129,     
+            46,      
+            50       
         ]
     },
     "errors": {
@@ -24,20 +22,26 @@
             "DCOM",
             "DriverFrameworks-UserMode",
             "Service Control Manager",
-            "System Error",
-            "Kernel-Power",
-            "Microsoft-Windows-WindowsUpdateClient",
-            "Microsoft-Windows-Security-SPP"
+            "Kernel-PnP",
+            "SNMP",
+            "Cryptographic Services"
         ],
         "event_ids": [
-            10005,  
-            10010,  
-            7000,   
-            7009,   
-            41,
-            20,   
-            16384,
-            1530    
+            10005,   
+            10010,   
+            7000,    
+            7009,    
+            41,      
+            109,     
+            10,      
+            14,     
+            6008     
         ]
+    },
+    "critical_thresholds": {
+        "cpu_usage": 75.0,
+        "memory_usage": 85.0,
+        "retry_attempts": 3,
+        "retry_interval_minutes": 15
     }
 }
