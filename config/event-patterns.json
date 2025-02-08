@@ -1,0 +1,43 @@
+{
+    "warnings": {
+        "sources": [
+            "Service Control Manager",
+            "Disk",
+            "Netwtw14",
+            "Application Popup",
+            "Windows Error Reporting",
+            "DHCP-Client",
+            "DNS Client"
+        ],
+        "event_ids": [
+            1001,  
+            6062,  
+            219,   
+            1014,  
+            1015,  
+            4000,  
+            1012
+        ]
+    },
+    "errors": {
+        "sources": [
+            "DCOM",
+            "DriverFrameworks-UserMode",
+            "Service Control Manager",
+            "System Error",
+            "Kernel-Power",
+            "Microsoft-Windows-WindowsUpdateClient",
+            "Microsoft-Windows-Security-SPP"
+        ],
+        "event_ids": [
+            10005,  
+            10010,  
+            7000,   
+            7009,   
+            41,
+            20,   
+            16384,
+            1530    
+        ]
+    }
+}

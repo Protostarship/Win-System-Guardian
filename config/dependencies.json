@@ -1,0 +1,31 @@
+{
+    "Print Spooler": [
+        "RPC Service",
+        "Windows Management Instrumentation"
+    ],
+    "Windows Update": [
+        "Background Intelligent Transfer Service",
+        "Windows Update Medic Service",
+        "Update Orchestrator Service"
+    ],
+    "Windows Defender": [
+        "Windows Defender Antivirus Service",
+        "Windows Defender Firewall",
+        "Base Filtering Engine"
+    ],
+    "Network Services": [
+        "DHCP Client",
+        "DNS Client",
+        "Network Location Awareness"
+    ],
+    "Remote Desktop": [
+        "Remote Desktop Services",
+        "Terminal Service",
+        "Remote Desktop Configuration"
+    ],
+    "Storage Services": [
+        "Disk Driver",
+        "Volume Shadow Copy",
+        "Storage Service"
+    ]
+}

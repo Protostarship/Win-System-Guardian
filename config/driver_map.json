@@ -1,0 +1,38 @@
+{
+    "disk": {
+        "store_path": "C:\\Windows\\System32\\DriverStore\\FileRepository\\disk.sys",
+        "backup_path": "C:\\ProgramData\\ComponentMonitor\\backup\\disk.sys",
+        "dependencies": ["volmgr", "partmgr"],
+        "critical": true
+    },
+    "ndis": {
+        "store_path": "C:\\Windows\\System32\\DriverStore\\FileRepository\\ndis.sys",
+        "backup_path": "C:\\ProgramData\\ComponentMonitor\\backup\\ndis.sys",
+        "dependencies": ["tcpip"],
+        "critical": true
+    },
+    "netwtw10": {
+        "store_path": "C:\\Windows\\System32\\DriverStore\\FileRepository\\netwtw10.sys",
+        "backup_path": "C:\\ProgramData\\ComponentMonitor\\backup\\netwtw10.sys",
+        "dependencies": ["ndis"],
+        "critical": false
+    },
+    "usbhub3": {
+        "store_path": "C:\\Windows\\System32\\DriverStore\\FileRepository\\usbhub3.sys",
+        "backup_path": "C:\\ProgramData\\ComponentMonitor\\backup\\usbhub3.sys",
+        "dependencies": ["usbxhci"],
+        "critical": false
+    },
+    "hdaudio": {
+        "store_path": "C:\\Windows\\System32\\DriverStore\\FileRepository\\hdaudio.sys",
+        "backup_path": "C:\\ProgramData\\ComponentMonitor\\backup\\hdaudio.sys",
+        "dependencies": [],
+        "critical": false
+    },
+    "display": {
+        "store_path": "C:\\Windows\\System32\\DriverStore\\FileRepository\\display.sys",
+        "backup_path": "C:\\ProgramData\\ComponentMonitor\\backup\\display.sys",
+        "dependencies": [],
+        "critical": true
+    }
+}
