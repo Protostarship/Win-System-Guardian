@@ -83,6 +83,25 @@ Map driver information for recovery:
 }
 ```
 
+### Config Customization Guide
+#### event_patterns.json
+- Add/remove event IDs from Microsoft's [Windows Event Log Reference]
+- Adjust critical thresholds based on your hardware capabilities
+
+#### dependencies.json
+- Use `sc qc <service_name>` to discover service dependencies
+- Update critical paths for your specific service architecture
+
+#### driver_map.json
+- Find driver registry paths using:
+  `reg query HKLM\SYSTEM\CurrentControlSet\Services /s | findstr "ImagePath"`
+- Set criticality (1-10) based on driver importance
+
+#### Security Considerations:
+- Regularly audit quarantine folder contents
+- Monitor guardian.log for forensic data
+- Rotate logs weekly using Windows Task Scheduler
+
 ### Service Installation
 1. Install the service using:
 ```bash
@@ -102,6 +121,16 @@ python SystemGuardian.py start
 - Stop: `python SystemGuardian.py stop`
 - Remove: `python SystemGuardian.py remove`
 - Update: `python SystemGuardian.py update`
+
+### Verification Command
+#### Check service status
+Get-Service SystemGuardian | Format-List *
+
+#### View recent logs
+Get-Content C:\ProgramData\ComponentMonitor\logs\guardian.log -Tail 100
+
+#### Verify driver blacklisting
+Get-ChildItem C:\Windows\System32\drivers | Where-Object {$_.Name -in (Get-Content C:\ProgramData\ComponentMonitor\config\driver_map.json | ConvertFrom-Json).drivers.blacklist}
 
 ### Logging
 - Logs are stored in `C:/ProgramData/ComponentMonitor/logs/guardian.log`
