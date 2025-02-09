@@ -34,11 +34,11 @@ sqlite3
 ## Directory Structure
 ```
 C:/ProgramData/SystemGuardian/
-├── logs/                  # Rotating log files
-├── backups/              # Registry and component backups
-├── recovery_points/      # System recovery points
-├── quarantine/           # Isolated components
-└── guardian.db          # SQLite database
+├── logs/                     # Rotating log files
+├── backups/                  # Registry and component backups
+├── recovery_points/          # System recovery points
+├── quarantine/               # Isolated components
+└── guardian.db               # SQLite database
 ```
 
 ## Database Schema
@@ -86,20 +86,22 @@ python SystemGuardian.py install
 ```
 
 ### Service Management
+- Start service
 ```bash
-# Start service
 python SystemGuardian.py start
-
-# Stop service
+```
+- Stop service
+```bash
 python SystemGuardian.py stop
-
-# Update service
+```
+- Update service
+```bash
 python SystemGuardian.py update
-
-# Remove service
+```
+- Remove service
+```bash
 python SystemGuardian.py remove
 ```
-
 ## Recovery System
 
 ### Recovery Points
@@ -329,3 +331,5 @@ SELECT name, status FROM components WHERE status != 'Active';
 
 ### Resolution Steps
 Detailed for each error code in the logs with specific troubleshooting procedures and recovery steps.
+
+<**Windows 11 Home - Insider Preview build Production 09/02/25**>
