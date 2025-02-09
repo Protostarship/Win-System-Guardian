@@ -1,304 +1,331 @@
 # SystemGuardian Service Documentation
 
 ## Overview
-SystemGuardian is a Windows service designed to monitor and maintain system health by detecting, analyzing, and automatically responding to system events, registry issues, and component failures. The service provides proactive system maintenance through continuous monitoring, automatic repair attempts, and component isolation when necessary.
+SystemGuardian is an advanced Windows service that provides automated system monitoring, protection, and recovery capabilities. It implements real-time component tracking, automatic recovery points, and intelligent event handling to maintain system stability and integrity.
 
-## Features
-- Continuous monitoring of system event logs
-- Registry health monitoring
-- Automatic repair attempts for problematic components
-- Component isolation for persistent issues
-- User notifications for critical events
-- Backup and recovery mechanisms
-- Driver store management
-- DCOM component monitoring
+## Key Features
+- Real-time WMI-based event monitoring
+- Automated recovery point management
+- Registry state tracking and backup
+- Component integrity verification
+- Intelligent thread pool management
+- SQLite-based component and event tracking
+- Automated system restoration capabilities
+- Smart component isolation and quarantine
 
-## Prerequisites
+## System Requirements
 
-### System Requirements
-- Windows Operating System
-- Administrative privileges
-- Python 3.6 or higher
+### Hardware Requirements
+- Windows Operating System (Windows 10/11 recommended)
+- Minimum 4GB RAM
+- 1GB free disk space for recovery points
 
-### Required Python Packages
+### Software Prerequisites
+- Python 3.8 or higher
+- Required Python packages:
 ```
 win32serviceutil
+wmi
 psutil
 win10toast
+sqlite3
 ```
 
-### Required System Access
-- Event Log access permissions
-- Registry modification permissions
-- Service management permissions
-- Driver store access
-
-## Installation
-
-### Directory Structure
-The service requires the following directory structure:
+## Directory Structure
 ```
-C:/ProgramData/ComponentMonitor/
-├── config/
-│   ├── event_patterns.json
-│   ├── dependencies.json
-│   ├── driver_map.json
-│   └── backups/
-├── logs/
-└── quarantine/
+C:/ProgramData/SystemGuardian/
+├── logs/                  # Rotating log files
+├── backups/              # Registry and component backups
+├── recovery_points/      # System recovery points
+├── quarantine/           # Isolated components
+└── guardian.db          # SQLite database
 ```
 
-### Configuration Files
+## Database Schema
 
-#### event_patterns.json
-```json
-{
-    "warnings": {
-        "sources": ["Service Control Manager", "Disk", "Netwtw14"],
-        "event_ids": [1001, 6062, 219]
-    },
-    "errors": {
-        "sources": ["DCOM", "DriverFrameworks-UserMode", "Service Control Manager"],
-        "event_ids": [10005, 10010, 7000, 7009]
-    }
-}
+### Components Table
+```sql
+CREATE TABLE components (
+    name TEXT PRIMARY KEY,
+    type TEXT,
+    path TEXT,
+    dependencies TEXT,
+    hash TEXT,
+    last_modified REAL,
+    status TEXT
+);
 ```
 
-#### dependencies.json
-Define component dependencies to manage cascading failures:
-```json
-{
-    "component_name": ["dependent_component1", "dependent_component2"]
-}
+### Recovery Points Table
+```sql
+CREATE TABLE recovery_points (
+    timestamp REAL PRIMARY KEY,
+    components TEXT,
+    registry_backup TEXT,
+    description TEXT
+);
 ```
 
-#### driver_map.json
-Map driver information for recovery:
-```json
-{
-    "driver_name": {
-        "store_path": "path_in_driver_store",
-        "backup_path": "backup_location"
-    }
-}
+### Events Table
+```sql
+CREATE TABLE events (
+    id INTEGER PRIMARY KEY,
+    timestamp REAL,
+    type TEXT,
+    component TEXT,
+    description TEXT,
+    severity TEXT
+);
 ```
 
-### Config Customization Guide
-#### event_patterns.json
-- Add/remove event IDs from Microsoft's [Windows Event Log Reference]
-- Adjust critical thresholds based on your hardware capabilities
+## Service Installation
 
-#### dependencies.json
-- Use `sc qc <service_name>` to discover service dependencies
-- Update critical paths for your specific service architecture
-
-#### driver_map.json
-- Find driver registry paths using:
-  ```bash
-  reg query HKLM\SYSTEM\CurrentControlSet\Services /s | findstr "ImagePath"
-  ```
-- Set criticality (1-10) based on driver importance
-
-#### Security Considerations:
-- Regularly audit quarantine folder contents
-- Monitor guardian.log for forensic data
-- Rotate logs weekly using Windows Task Scheduler
-
-### Service Installation
-1. Install the service using:
+### Basic Installation
 ```bash
 python SystemGuardian.py install
 ```
 
-2. Start the service:
+### Service Management
 ```bash
+# Start service
 python SystemGuardian.py start
+
+# Stop service
+python SystemGuardian.py stop
+
+# Update service
+python SystemGuardian.py update
+
+# Remove service
+python SystemGuardian.py remove
 ```
 
-## Service Management
+## Recovery System
 
-### Basic Commands
-- Install: `python SystemGuardian.py install`
-- Start: `python SystemGuardian.py start`
-- Stop: `python SystemGuardian.py stop`
-- Remove: `python SystemGuardian.py remove`
-- Update: `python SystemGuardian.py update`
+### Recovery Points
+- Automatic creation before critical operations
+- Maximum retention: 5 recovery points
+- Includes:
+  - Full registry state
+  - Component database snapshot
+  - System state metadata
 
-### Verification Command
-#### Check service status
-Get-Service SystemGuardian | Format-List *
+### Recovery Point Creation
+Recovery points are automatically created:
+- At service startup
+- Before critical component modifications
+- Before component isolation
+- During service shutdown
+- On-demand via API
 
-#### View recent logs
-```bash
-Get-Content C:\ProgramData\ComponentMonitor\logs\guardian.log -Tail 100
+### Recovery Point Restoration
+```python
+# Example restoration code
+guardian_service.restore_recovery_point(timestamp)
 ```
 
-#### Verify driver blacklisting
-```bash
-Get-ChildItem C:\Windows\System32\drivers | Where-Object {$_.Name -in (Get-Content C:\ProgramData\ComponentMonitor\config\driver_map.json | ConvertFrom-Json).drivers.blacklist}
+## Monitoring System
+
+### WMI Event Monitoring
+- Real-time event capture
+- Efficient event filtering
+- Resource-aware processing
+- Automated response triggers
+
+### Component Integrity
+- SHA-256 hash verification
+- Dependency validation
+- Path existence checking
+- Permission verification
+
+## Thread Management
+
+### Thread Pool
+- Maximum workers: 4
+- Automatic task distribution
+- Resource-aware scheduling
+- Graceful shutdown handling
+
+### Event Queue
+- Maximum size: 1000 events
+- FIFO processing
+- Overflow protection
+- Priority handling
+
+## Configuration
+
+### Service Configuration
+```python
+class Config:
+    MAX_QUEUE_SIZE = 1000
+    MAX_THREADS = 4
+    MAX_RECOVERY_POINTS = 5
+    MAX_BACKUP_AGE_DAYS = 7
+    EVENT_CHECK_INTERVAL = 5
+    CACHE_UPDATE_INTERVAL = 3600
+    BACKUP_INTERVAL = 86400
 ```
-
-### Logging
-- Logs are stored in `C:/ProgramData/ComponentMonitor/logs/guardian.log`
-- Log format: `timestamp - level - message`
-- Log levels: INFO, WARNING, ERROR
-
-## Component Monitoring
-
-### Event Log Monitoring
-The service monitors system event logs for:
-- Service failures
-- Driver issues
-- DCOM errors
-- Hardware warnings
-- System errors
 
 ### Registry Monitoring
-Continuous monitoring of:
-- Service registry entries
-- Driver registry entries
-- DCOM component registration
-- Binary path validation
+Monitored paths:
+```python
+CRITICAL_REG_PATHS = [
+    r"SYSTEM\CurrentControlSet\Services",
+    r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Drivers32",
+    r"SYSTEM\CurrentControlSet\Control\Class"
+]
+```
 
-## Automatic Repair Mechanisms
+## Component Management
 
-### Service Repair
-1. Automatic restart attempt
-2. Registry validation
-3. Binary path verification
-4. Dependency check
-
-### Driver Repair
-1. Driver store backup check
-2. Forced reinstallation
-3. Registry cleanup
-4. Quarantine management
-
-### DCOM Repair
-1. Registry key security
-2. Component re-registration
-3. Permission correction
-
-## Component Isolation
-
-### Isolation Triggers
-- Maximum retry count exceeded
-- Critical system errors
-- Missing binaries
-- Corrupted registry entries
+### Component States
+- Active: Component running normally
+- Warning: Minor issues detected
+- Critical: Major problems identified
+- Isolated: Component quarantined
+- Recovered: Restored from backup
 
 ### Isolation Process
-1. Component shutdown
-2. Registry backup
-3. Configuration modification
-4. User notification
-5. Quarantine transfer (if applicable)
+1. Create recovery point
+2. Backup component files
+3. Disable/stop component
+4. Update database status
+5. Notify administrator
 
-## Recovery and Backup
+### Recovery Process
+1. Verify recovery point integrity
+2. Restore registry state
+3. Restore component files
+4. Validate restoration
+5. Update component status
 
-### Registry Backups
-- Location: `C:/ProgramData/ComponentMonitor/config/backups/`
-- Format: `.reg` files
-- Naming: `component_type_name.reg`
+## Logging System
 
-### Driver Quarantine
-- Location: `C:/ProgramData/ComponentMonitor/quarantine/`
-- Original permissions preserved
-- Metadata tracking
+### Log Rotation
+- Daily log files
+- Maximum size: 10MB
+- Retention: 5 files
+- Format: `guardian_YYYYMMDD.log`
 
-## Troubleshooting
-
-### Common Issues
-
-#### Service Won't Start
-1. Check service account permissions
-2. Verify directory permissions
-3. Review event logs
-4. Check configuration files
-
-#### Component Isolation Failures
-1. Verify administrative privileges
-2. Check component dependencies
-3. Review isolation logs
-4. Verify backup locations
-
-#### Registry Monitoring Issues
-1. Check registry permissions
-2. Verify registry paths
-3. Review monitoring logs
-4. Check security policies
-
-### Log Analysis
-1. Check `guardian.log` for error messages
-2. Review Windows Event Viewer
-3. Check component-specific logs
-4. Analyze isolation queue entries
-
-## Best Practices
-
-### Configuration Management
-1. Regular backup of configuration files
-2. Version control for configuration changes
-3. Documentation of custom patterns
-4. Regular validation of dependencies
-
-### Monitoring
-1. Regular log review
-2. Performance impact assessment
-3. Resource usage monitoring
-4. Alert threshold adjustment
-
-### Security
-1. Regular permission audits
-2. Secure backup storage
-3. Quarantine management
-4. Access control maintenance
+### Log Levels
+- INFO: Normal operations
+- WARNING: Potential issues
+- ERROR: Operation failures
+- CRITICAL: System failures
 
 ## Performance Considerations
 
 ### Resource Usage
-- CPU: Minimal impact during normal operation
-- Memory: ~50-100MB baseline
-- Disk: Log rotation recommended
-- Network: Minimal usage
+- CPU: <5% average
+- Memory: ~100MB baseline
+- Disk: ~1GB for recovery points
+- Database: ~50MB typical
 
 ### Optimization
-1. Event pattern tuning
-2. Monitoring interval adjustment
-3. Log level management
-4. Queue size limitations
+- Event batching
+- Efficient WMI queries
+- Thread pool management
+- Queue size limits
 
-## Support and Maintenance
+## Security Features
 
-### Regular Maintenance Tasks
-1. Log rotation
-2. Configuration review
-3. Quarantine cleanup
-4. Backup verification
+### Component Verification
+- File hash validation
+- Path verification
+- Permission checking
+- Dependency validation
 
-### Update Process
-1. Service stop
-2. Configuration backup
-3. File replacement
-4. Service restart
-5. Verification
+### Backup Security
+- Encrypted storage
+- Access control
+- Integrity verification
+- Secure deletion
 
-### Health Checks
-1. Service status verification
-2. Log analysis
-3. Resource usage monitoring
+## Troubleshooting
+
+### Common Issues
+1. Service Start Failure
+   - Check database permissions
+   - Verify directory access
+   - Review WMI permissions
+   - Check log files
+
+2. Recovery Point Creation Failure
+   - Verify disk space
+   - Check backup directory permissions
+   - Review database connectivity
+   - Check registry access
+
+3. Component Isolation Issues
+   - Verify administrative rights
+   - Check component dependencies
+   - Review isolation logs
+   - Verify backup creation
+
+### Diagnostic Steps
+1. Check service status
+```powershell
+Get-Service SystemGuardian | Format-List *
+```
+
+2. Review recent logs
+```powershell
+Get-Content "C:\ProgramData\SystemGuardian\logs\guardian_*.log" -Tail 100
+```
+
+3. Check recovery points
+```sql
+SELECT * FROM recovery_points ORDER BY timestamp DESC LIMIT 5;
+```
+
+4. Verify component status
+```sql
+SELECT name, status FROM components WHERE status != 'Active';
+```
+
+## Best Practices
+
+### Maintenance
+1. Regular database cleanup
+2. Log rotation verification
+3. Recovery point validation
 4. Component status review
 
-## Security Considerations
-
-### Access Control
-- Service account minimal privileges
-- Quarantine access restrictions
-- Configuration file permissions
-- Registry access controls
-
 ### Monitoring
-- Failed repair attempts
-- Unauthorized access attempts
-- Configuration changes
-- Component isolation events
+1. Regular log review
+2. Performance tracking
+3. Resource usage monitoring
+4. Event pattern analysis
+
+### Backup Strategy
+1. Regular recovery point testing
+2. Backup retention management
+3. Storage space monitoring
+4. Integrity verification
+
+## Support and Updates
+
+### Update Process
+1. Stop service
+2. Backup database
+3. Update Python script
+4. Verify configuration
+5. Restart service
+
+### Health Checks
+1. Database integrity
+2. Recovery point validity
+3. Component status
+4. Resource usage
+
+## Error Codes and Troubleshooting
+
+### Common Error Codes
+- 1001: Database connection failure
+- 1002: Recovery point creation failed
+- 1003: Component isolation error
+- 1004: Registry backup failed
+- 1005: WMI monitoring error
+
+### Resolution Steps
+Detailed for each error code in the logs with specific troubleshooting procedures and recovery steps.
