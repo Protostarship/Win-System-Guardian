@@ -30,6 +30,8 @@ from typing import Dict, List, Optional, Tuple
 import os
 from contextlib import contextmanager
 import sqlite3
+import logging
+from logging.handlers import RotatingFileHandler
 
 # Enhanced Configuration
 class Config:
@@ -126,6 +128,10 @@ class SystemGuardianService(win32serviceutil.ServiceFramework):
     _svc_name_ = "SystemGuardian"
     _svc_display_name_ = "System Stability Guardian"
     _svc_description_ = "Monitors and protects critical system components with recovery capabilities"
+    # Add this line to specify the service account
+    _svc_deps_ = []
+    # Use LocalSystem account
+    _svc_account_ = "LocalSystem"
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
@@ -175,7 +181,7 @@ class SystemGuardianService(win32serviceutil.ServiceFramework):
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.RotatingFileHandler(
+                RotatingFileHandler(
                     log_file,
                     maxBytes=10485760,  # 10MB
                     backupCount=5
@@ -183,6 +189,7 @@ class SystemGuardianService(win32serviceutil.ServiceFramework):
                 logging.StreamHandler()
             ]
         )
+
 
     def create_recovery_point(self, description: str = "Automatic recovery point"):
         """Create system recovery point"""
@@ -447,10 +454,15 @@ class SystemGuardianService(win32serviceutil.ServiceFramework):
             logging.critical(f"Service run failed: {str(e)}")
             self.SvcStop()
 
+# Add to the __main__ block
 if __name__ == '__main__':
     if len(sys.argv) == 1:
+        # When run without arguments, print usage information
+        print("Usage: 'python script.py [install|start|stop|remove]'")
+        print("To manage the service, use one of the above commands.")
         servicemanager.Initialize()
         servicemanager.PrepareToHostSingle(SystemGuardianService)
         servicemanager.StartServiceCtrlDispatcher()
     else:
+        # Handle standard service commands
         win32serviceutil.HandleCommandLine(SystemGuardianService)
