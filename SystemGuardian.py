@@ -9,6 +9,8 @@ import win32security
 import win32con
 import winreg
 from pathlib import Path
+from sys import argv, exit
+import sys
 import psutil
 import threading
 from datetime import datetime, timedelta
@@ -68,7 +70,7 @@ class SystemGuardianService(win32serviceutil.ServiceFramework):
 
     def load_configurations(self):
         # Load event patterns
-        self.event_patterns = self.load_json_config('event_patterns.json', {
+        self.event_patterns = self.load_json_config('event_patterns.jsonc', {
             'warnings': {
                 'sources': ['Service Control Manager', 'Disk', 'Netwtw14'],
                 'event_ids': [1001, 6062, 219]
